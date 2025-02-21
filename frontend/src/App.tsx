@@ -36,10 +36,10 @@ function App() {
 
   // If we've gone past category 5, we're done.
   const [finished, setFinished] = useState(false);
-
   // 1. Load all questions for the current category
   async function loadCategory(cat: number) {
     try {
+      console.log("BASE_URL in production:", import.meta.env.VITE_API_BASE_URL);
       const resp = await fetch(`${BASE_URL}/categories/${cat}`);
       if (!resp.ok) {
         console.error("Error loading category", cat, resp.statusText);
