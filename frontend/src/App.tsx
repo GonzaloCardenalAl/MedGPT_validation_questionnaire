@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 /** Each question returned by /categories/{category_index} */
 interface CategoryQuestion {
@@ -28,9 +28,6 @@ function App() {
   // All questions for the current category
   const [questions, setQuestions] = useState<CategoryQuestion[]>([]);
 
-  // We'll store user answers for the *current category* in a separate array,
-  // with the same length as `questions`.
-  // Each element corresponds to one question's user feedback.
   const [userAnswersForCategory, setUserAnswersForCategory] = useState<Answer[]>([]);
 
   // A global array of all answers across all categories.
