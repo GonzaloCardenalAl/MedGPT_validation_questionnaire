@@ -1,0 +1,14 @@
+[
+    {
+        "question": "What is your clinical specialty or area of practice?"
+     },
+    {
+        "question": "How many years have you worked as a clinician?"
+    },
+    {
+        "question": "How often do you use large language models (LLMs) in your clinical practice? (1 never to 5 very often)"
+    },
+    {
+        "question": "How often do you use large language models (LLMs) in your personal or non-clinical life? (1 never to 5 very often)"
+    }
+]

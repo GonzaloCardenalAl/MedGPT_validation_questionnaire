@@ -1,0 +1,22 @@
+[
+    {
+        "question": "Could the LLM help in terms of “accuracy” (find better wording)?"
+    },
+    {
+        "question": "Could the LLM help in terms of speed?"
+    },
+    {
+        "question": "Could the LLM help in specific contexts (e.g. junior clinicians)?"
+    },
+    {
+        "question": "Would you feel confident trusting the LLM's outputs for curbside consults?",
+        "follow_up": "If not, what would you be needed for you to trust the LLM?"
+    },
+    {
+        "question": "Would you consider using LLMs to assist you in your work?",
+        "follow_up": "If not, what conditions or improvements would you need from them to use them at the clinic?"
+    },
+    {
+        "question": "Do you have any additional comments or feedback regarding the questionnaire or validation?"
+    }
+]
