@@ -1,27 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
-
-/** Each question returned by /categories/{category_index} */
-interface CategoryQuestion {
-  category: number;
-  question_index: number;
-  question: string;
-  true_answer: string;
-}
-
-/** The structure we'll store in the final answers array. */
-interface Answer {
-  category: number;
-  question_index: number;
-  question: string;
-  true_answer: string;
-  userThinksCorrect: boolean | null;
-  feedback: string;
-}
 
 interface Question {
   question: string;
-  answer?: string;
+  answer: string;
   true_answer?: string;
 }
 
@@ -55,7 +37,6 @@ interface ConclusionAnswers {
 
 //const BASE_URL = "http://127.0.0.1:8000";
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
-const MAX_CATEGORIES = 5;
 
 function App() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -697,11 +678,11 @@ Evaluate the medical student's explanation by assigning a score from 0 to 5 (0 b
                   />
                   <button 
                     onClick={handleConclusionNext}
-                    disabled={conclusionCurrentIndex !== conclusion.length - 1 && 
-                            (conclusionAnswers[conclusionCurrentIndex.toString()] === undefined || 
-                             (conclusion[conclusionCurrentIndex]?.follow_up && 
-                              conclusionAnswers[conclusionCurrentIndex.toString()] === false && 
-                              !conclusionAnswers[`${conclusionCurrentIndex}_follow_up`]))}
+                    disabled={Boolean(conclusionCurrentIndex !== conclusion.length - 1 && 
+                      (conclusionAnswers[conclusionCurrentIndex.toString()] === undefined || 
+                       (conclusion[conclusionCurrentIndex]?.follow_up && 
+                        conclusionAnswers[conclusionCurrentIndex.toString()] === false && 
+                        !conclusionAnswers[`${conclusionCurrentIndex}_follow_up`])))}
                   >
                     Next
                   </button>
@@ -739,11 +720,11 @@ Evaluate the medical student's explanation by assigning a score from 0 to 5 (0 b
 
                   <button 
                     onClick={handleConclusionNext}
-                    disabled={conclusionCurrentIndex !== conclusion.length - 1 && 
-                            (conclusionAnswers[conclusionCurrentIndex.toString()] === undefined || 
-                             (conclusion[conclusionCurrentIndex]?.follow_up && 
-                              conclusionAnswers[conclusionCurrentIndex.toString()] === false && 
-                              !conclusionAnswers[`${conclusionCurrentIndex}_follow_up`]))}
+                    disabled={Boolean(conclusionCurrentIndex !== conclusion.length - 1 && 
+                      (conclusionAnswers[conclusionCurrentIndex.toString()] === undefined || 
+                       (conclusion[conclusionCurrentIndex]?.follow_up && 
+                        conclusionAnswers[conclusionCurrentIndex.toString()] === false && 
+                        !conclusionAnswers[`${conclusionCurrentIndex}_follow_up`])))}
                   >
                     Next
                   </button>
