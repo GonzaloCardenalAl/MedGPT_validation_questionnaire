@@ -378,4 +378,34 @@ textarea {
   outline: none;
   border-color: #4CAF50;
   box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1);
+}
+
+.follow-up-section {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.follow-up-section h4 {
+  margin-bottom: 10px;
+  color: #2c3e50;
+  font-size: 0.9em;
+  font-weight: normal;
+}
+
+.follow-up-section textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  resize: vertical;
+  background-color: white;
+}
+
+.follow-up-section textarea:focus {
+  outline: none;
+  border-color: #4CAF50;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1);
 } 

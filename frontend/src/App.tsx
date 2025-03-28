@@ -34,7 +34,7 @@ interface ConclusionQuestion {
 }
 
 interface ConclusionAnswers {
-  [key: string]: boolean | string | undefined;
+  [key: string]: string | undefined;
 }
 
 //const BASE_URL = "http://127.0.0.1:8000";
@@ -59,6 +59,7 @@ function App() {
   const [transitionMessage, setTransitionMessage] = useState('');
   const [step1StartTime, setStep1StartTime] = useState<number>(0);
   const [step2StartTime, setStep2StartTime] = useState<number>(0);
+  const [hasDownloaded, setHasDownloaded] = useState(false);
 
   // Load initial data
   useEffect(() => {
@@ -225,7 +226,21 @@ function App() {
         setCurrentQuestionIndex(currentQuestionIndex + 1);
       } else {
         setIsTransitioning(true);
-        setTransitionMessage("Now we are going to proceed with step 2: Clinician answers assited with model responses, here we will present you with questions and you will have to introduce your answer. After clicking next, the model generated answer will be presented and you will be offered to change you answer.");
+        const transitionContent = `
+          <div style="font-size: 20px; line-height: 1.6;">
+            <p style="margin-bottom: 20px;">
+              For the upcoming questions, you will first be asked to enter your own suggested response to a clinical question. 
+              After submitting your answer, you will then see the AI-generated response, and be given the option to revise your original answer.
+            </p>
+            
+            <p style="margin-bottom: 20px;">
+              Please write your answers in complete sentences. For example, in response to the question 
+              <span style="font-style: italic;">"What color is grass?"</span>, 
+              a complete answer would be: 
+              <span style="font-style: italic;">"Grass is green."</span>
+            </p>
+          </div>`;
+        setTransitionMessage(transitionContent);
       }
     } catch (error) {
       console.error('Error submitting rating:', error);
@@ -377,13 +392,9 @@ function App() {
     setStep2Answers(newAnswers);
   };
 
-  const handleConclusionAnswer = (answer: boolean | string) => {
+  const handleConclusionAnswer = (answer: string) => {
     const newAnswers = { ...conclusionAnswers };
-    if (typeof answer === 'string') {
-      newAnswers[conclusionCurrentIndex.toString()] = answer;
-    } else {
-      newAnswers[conclusionCurrentIndex.toString()] = answer;
-    }
+    newAnswers[conclusionCurrentIndex.toString()] = answer;
     setConclusionAnswers(newAnswers);
   };
 
@@ -394,28 +405,18 @@ function App() {
   };
 
   const handleConclusionNext = () => {
-    const currentQuestion = conclusion[conclusionCurrentIndex];
-    const currentAnswer = conclusionAnswers[conclusionCurrentIndex.toString()];
-
-    // If it's the last question, proceed to the end without requiring an answer
+    // For the last question (additional comments), allow proceeding without an answer
     if (conclusionCurrentIndex === conclusion.length - 1) {
       setCurrentStep(5);
       return;
     }
 
-    // For all other questions, require an answer
-    if (currentAnswer === undefined) {
+    // For all other questions, require the main answer (1-5 rating)
+    if (!conclusionAnswers[conclusionCurrentIndex.toString()]) {
       return;
     }
 
-    // If current question has a follow-up and answer is "no", show follow-up
-    if (currentQuestion.follow_up && currentAnswer === false) {
-      const followUpAnswer = conclusionAnswers[`${conclusionCurrentIndex}_follow_up`];
-      if (!followUpAnswer) {
-        return; // Don't proceed if follow-up answer is missing
-      }
-    }
-
+    // Proceed to next question
     setConclusionCurrentIndex(conclusionCurrentIndex + 1);
   };
 
@@ -468,6 +469,9 @@ function App() {
     }).catch(error => {
       console.error('Error saving answers:', error);
     });
+
+    // Set downloaded state to true
+    setHasDownloaded(true);
   };
 
   const renderInstructions = () => (
@@ -487,18 +491,18 @@ function App() {
       let transitionTitle = '';
       switch (currentStep) {
         case 1:
-          transitionTitle = "Step 1: MedGPT Validation";
+          transitionTitle = "Section 2: Evaluation of AI-generated answers";
           break;
         case 2:
-          transitionTitle = "Step 2: Clinician answers";
+          transitionTitle = "Section 3: HIV clinical Q&A";
           break;
         case 3:
-          transitionTitle = "Conclusion questions";
+          transitionTitle = "Section 4: Closing questions";
           break;
         default:
-          transitionTitle = "Next Step";
+          transitionTitle = "Next Section";
       }
-      return (
+    return (
         <div className="step-container transition-container">
           <h2>{transitionTitle}</h2>
           <div 
@@ -506,9 +510,9 @@ function App() {
             dangerouslySetInnerHTML={{ __html: transitionMessage }}
           />
           <button onClick={handleTransitionNext}>Continue</button>
-        </div>
-      );
-    }
+      </div>
+    );
+  }
 
     switch (currentStep) {
       case 0:
@@ -516,7 +520,7 @@ function App() {
       case 1:
         return (
           <div className="step-container">
-            <h2>General Information</h2>
+            <h2>Section 1: General information</h2>
             <p>{generalInfo[currentQuestionIndex]?.question}</p>
             {currentQuestionIndex >= 2 ? (
               <div className="rating-section">
@@ -555,7 +559,7 @@ function App() {
       case 2:
         return (
           <div className="step-container">
-            <h2>Step 1: Validation of MedGPT Score</h2>
+            <h2>Section 2: Evaluation of AI-generated answers</h2>
             <div className="question-container">
               <h3>Question {currentQuestionIndex + 1}</h3>
               <p>{step1Questions[currentQuestionIndex]?.question}</p>
@@ -610,7 +614,7 @@ function App() {
       case 3:
         return (
           <div className="step-container">
-            <h2>Step 2: Answer Generation and Comparison</h2>
+            <h2>Section 3: HIV clinical Q&A</h2>
             <div className="question-container">
               <h3>Question {currentQuestionIndex + 1}</h3>
               <p>{step2Questions[currentQuestionIndex]?.question}</p>
@@ -671,7 +675,7 @@ function App() {
                         No
                       </button>
                     </div>
-                    {step2Answers[currentQuestionIndex]?.changedAnswer !== undefined && (
+                    {step2Answers[currentQuestionIndex]?.changedAnswer !== undefined ? (
                       <>
                         <h4>Your Previous Answer:</h4>
                         <p>{step2Answers[currentQuestionIndex]?.answer}</p>
@@ -697,11 +701,25 @@ function App() {
                           </div>
                         </div>
                       </>
+                    ) : (
+                      <div className="rating-section">
+                        <h4>Rate your confidence in your original answer after seeing the model's response (0-5):</h4>
+                        <div className="rating-buttons">
+                          {[0, 1, 2, 3, 4, 5].map((value) => (
+                            <button
+                              key={value}
+                              onClick={() => handleChangedConfidence(value)}
+                              className={step2Answers[currentQuestionIndex]?.changedConfidence === value ? 'selected' : ''}
+                            >
+                              {value}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                     )}
                     <button 
                       onClick={handleStep2Next}
-                      disabled={step2Answers[currentQuestionIndex]?.changedAnswer !== undefined && 
-                              step2Answers[currentQuestionIndex]?.changedConfidence === undefined}
+                      disabled={step2Answers[currentQuestionIndex]?.changedConfidence === undefined}
                     >
                       Next
                     </button>
@@ -714,81 +732,69 @@ function App() {
       case 4:
         return (
           <div className="step-container">
-            <h2>Closing Questions</h2>
+            <h2>Section 4: Closing questions</h2>
             <div className="question-container">
               <h3>Question {conclusionCurrentIndex + 1}</h3>
               <p>{conclusion[conclusionCurrentIndex]?.question}</p>
               
-              {conclusion[conclusionCurrentIndex]?.question === "Do you have any additional comments or feedback regarding the questionnaire or validation?" ? (
+              {conclusionCurrentIndex === conclusion.length - 1 ? (
+                // Last question (additional comments)
                 <div className="answer-section">
                   <textarea
-                    value={conclusionAnswers[conclusionCurrentIndex.toString()] as string || ''}
+                    value={conclusionAnswers[conclusionCurrentIndex.toString()] || ''}
                     onChange={(e) => handleConclusionAnswer(e.target.value)}
                     placeholder="Enter your feedback"
                     rows={6}
                   />
-                  <button 
-                    onClick={handleConclusionNext}
-                    disabled={Boolean(conclusionCurrentIndex !== conclusion.length - 1 && 
-                      (conclusionAnswers[conclusionCurrentIndex.toString()] === undefined || 
-                       (conclusion[conclusionCurrentIndex]?.follow_up && 
-                        conclusionAnswers[conclusionCurrentIndex.toString()] === false && 
-                        !conclusionAnswers[`${conclusionCurrentIndex}_follow_up`])))}
-                  >
-                    Next
-                  </button>
                 </div>
               ) : (
+                // All other questions (1-5 rating + follow-up)
                 <div className="answer-section">
-                  <div className="yes-no-buttons">
-                    <button
-                      onClick={() => handleConclusionAnswer(true)}
-                      className={conclusionAnswers[conclusionCurrentIndex.toString()] === true ? 'selected' : ''}
-                    >
-                      Yes
-                    </button>
-                    <button
-                      onClick={() => handleConclusionAnswer(false)}
-                      className={conclusionAnswers[conclusionCurrentIndex.toString()] === false ? 'selected' : ''}
-                    >
-                      No
-                    </button>
+                  <div className="rating-section">
+                    <div className="rating-buttons">
+                      {[1, 2, 3, 4, 5].map((value) => (
+                        <button
+                          key={value}
+                          onClick={() => handleConclusionAnswer(value.toString())}
+                          className={conclusionAnswers[conclusionCurrentIndex.toString()] === value.toString() ? 'selected' : ''}
+                        >
+                          {value}
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
-                  {conclusion[conclusionCurrentIndex]?.follow_up && 
-                   conclusionAnswers[conclusionCurrentIndex.toString()] === false && (
+                  {conclusion[conclusionCurrentIndex]?.follow_up && (
                     <div className="follow-up-section">
-                      <h4>Follow-up Question:</h4>
-                      <p>{conclusion[conclusionCurrentIndex].follow_up}</p>
+                      <h4>{conclusion[conclusionCurrentIndex].follow_up}</h4>
                       <textarea
-                        value={conclusionAnswers[`${conclusionCurrentIndex}_follow_up`] as string || ''}
+                        value={conclusionAnswers[`${conclusionCurrentIndex}_follow_up`] || ''}
                         onChange={(e) => handleConclusionFollowUp(e.target.value)}
-                        placeholder="Enter your answer"
+                        placeholder="Enter your answer (optional)"
                         rows={4}
                       />
                     </div>
                   )}
-
-                  <button 
-                    onClick={handleConclusionNext}
-                    disabled={Boolean(conclusionCurrentIndex !== conclusion.length - 1 && 
-                      (conclusionAnswers[conclusionCurrentIndex.toString()] === undefined || 
-                       (conclusion[conclusionCurrentIndex]?.follow_up && 
-                        conclusionAnswers[conclusionCurrentIndex.toString()] === false && 
-                        !conclusionAnswers[`${conclusionCurrentIndex}_follow_up`])))}
-                  >
-                    Next
-                  </button>
                 </div>
               )}
+              
+              <button 
+                onClick={handleConclusionNext}
+                disabled={conclusionCurrentIndex !== conclusion.length - 1 && 
+                  !conclusionAnswers[conclusionCurrentIndex.toString()]}
+              >
+                Next
+              </button>
             </div>
           </div>
         );
       case 5:
         return (
           <div className="step-container">
-            <h2>Thank You!</h2>
-            <p>Thank you for completing the validation questionnaire. Please download the following json file and send it to the email address diane.duroux@ai.ethz.ch.</p>
+            <h2>{hasDownloaded ? "Thank you very much for completing the questionnaire." : "Almost done!"}</h2>
+            {!hasDownloaded && (
+              <p>To finalize your participation, please download the following JSON file containing your responses and send it via email to diane.duroux@ai.ethz.ch.</p>
+            )}
             <button 
               onClick={generateAnswersJson}
               className="download-button"

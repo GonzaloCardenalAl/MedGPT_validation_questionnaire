@@ -1,22 +1,25 @@
 [
     {
-        "question": "Could the LLM help in terms of “accuracy” (find better wording)?"
+        "question": "How does the level of complexity in the clinical vignettes presented compare to what you typically encounter in your clinical practice? (1 = Much simpler, 5 = much more difficult)",
+        "follow_up": "Comment (optional)"
     },
     {
-        "question": "Could the LLM help in terms of speed?"
+        "question": "In your opinion, how helpful could LLMs be in assisting clinicians during clinical consults by providing useful information? (1 = Not at all helpful, 5 = Extremely helpful)",
+        "follow_up": "Why? (optional)"
     },
     {
-        "question": "Could the LLM help in specific contexts (e.g. junior clinicians)?"
+        "question": "In your opinion, could the use of LLMs help improve the speed or efficiency of clinical consultations (e.g., to find relevant information, formulate responses, support decision-making…)? (1 = Not at all, 5 = Very significantly)",
+        "follow_up": "Why? (optional)"
     },
     {
-        "question": "Would you feel confident trusting the LLM's outputs for curbside consults?",
-        "follow_up": "If not, what would you be needed for you to trust the LLM?"
+        "question": "Do you think LLMs could be helpful in specific contexts (e.g., for junior clinicians, clinicians who are not HIV specialists…)? (1 = Not helpful at all, 5 = Extremely helpful)",
+        "follow_up": "If yes, please specify the context(s) where you believe LLMs would be most helpful (optional)"
     },
     {
-        "question": "Would you consider using LLMs to assist you in your work?",
-        "follow_up": "If not, what conditions or improvements would you need from them to use them at the clinic?"
+        "question": "Would you feel confident relying on the LLM's responses in the context of informal peer consultations ('curbside consults')? (1 = Not at all confident, 5 = Completely confident)",
+        "follow_up": "What would increase your trust in the LLM's responses? (e.g. access to sources, validation against clinical guidelines, peer-reviewed benchmarking, integration with trusted clinical tools…) (optional)"
     },
     {
-        "question": "Do you have any additional comments or feedback regarding the questionnaire or validation?"
+        "question": "Do you have any additional comments?"
     }
 ]
