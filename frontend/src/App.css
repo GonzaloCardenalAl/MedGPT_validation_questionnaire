@@ -68,27 +68,24 @@
 }
 
 .rating-section {
-  margin-top: 2rem;
-}
-
-.rating-item {
   margin: 1rem 0;
 }
 
 .rating-buttons {
   display: flex;
   gap: 0.5rem;
-  margin-top: 0.5rem;
+  justify-content: center;
+  margin-bottom: 0.5rem;
 }
 
 .rating-buttons button {
   width: 40px;
   height: 40px;
-  border: 1px solid #ddd;
-  background-color: #ffffff;
+  border: 1px solid #ccc;
   border-radius: 4px;
+  background-color: white;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s;
 }
 
 .rating-buttons button:hover {
@@ -99,6 +96,27 @@
   background-color: #4CAF50;
   color: white;
   border-color: #4CAF50;
+}
+
+.rating-labels {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 240px; /* Width of 5 buttons (40px each) plus 4 gaps (10px each) */
+  margin: 0 auto;
+  padding: 0 20px; /* Add padding to align with first and last buttons */
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.rating-labels span:first-child {
+  text-align: left;
+  margin-left: 0px; /* Adjust alignment with first button */
+}
+
+.rating-labels span:last-child {
+  text-align: right;
+  margin-right: -10px; /* Adjust alignment with last button */
 }
 
 input[type="text"] {
@@ -232,5 +250,75 @@ textarea {
 }
 
 .transition-container button:hover {
+  background-color: #45a049;
+}
+
+.instructions-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.instructions-content {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #333;
+}
+
+.instructions-content h2 {
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  font-size: 24px;
+}
+
+.instructions-content p {
+  margin-bottom: 1rem;
+}
+
+.instructions-content ul, 
+.instructions-content ol {
+  margin: 1rem 0;
+  padding-left: 2rem;
+}
+
+.instructions-content li {
+  margin-bottom: 0.5rem;
+}
+
+.instructions-content ul {
+  list-style-type: disc;
+}
+
+.instructions-content ol {
+  list-style-type: decimal;
+}
+
+.instructions-content strong {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.instructions-content div[style*="padding-left"] {
+  margin: 1rem 0;
+}
+
+.start-button {
+  display: block;
+  margin: 2rem auto 0;
+  padding: 0.75rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: white;
+  background-color: #4CAF50;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.start-button:hover {
   background-color: #45a049;
 } 

@@ -40,7 +40,7 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
 function App() {
   const [currentStep, setCurrentStep] = useState(0);
-  const [instructions, setInstructions] = useState('');
+  const [instructions, setInstructions] = useState<string>('');
   const [generalInfo, setGeneralInfo] = useState<Question[]>([]);
   const [step1Questions, setStep1Questions] = useState<Question[]>([]);
   const [step2Questions, setStep2Questions] = useState<Question[]>([]);
@@ -63,8 +63,11 @@ function App() {
     const loadInitialData = async () => {
       try {
         const response = await fetch(`${BASE_URL}/`);
-        const data = await response.json();
-        setInstructions(data.instructions);
+        const data = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(data, 'text/html');
+        const bodyContent = doc.body.innerHTML;
+        setInstructions(bodyContent);
       } catch (error) {
         console.error('Error loading instructions:', error);
       }
@@ -465,6 +468,18 @@ Evaluate the medical student's explanation by assigning a score from 0 to 5 (0 b
     });
   };
 
+  const renderInstructions = () => (
+    <div className="instructions-container">
+      <div 
+        className="instructions-content"
+        dangerouslySetInnerHTML={{ __html: instructions }}
+      />
+      <button onClick={() => setCurrentStep(1)} className="start-button">
+        Start
+      </button>
+    </div>
+  );
+
   const renderStep = () => {
     if (isTransitioning) {
       let transitionTitle = '';
@@ -481,37 +496,51 @@ Evaluate the medical student's explanation by assigning a score from 0 to 5 (0 b
         default:
           transitionTitle = "Next Step";
       }
-      return (
+    return (
         <div className="step-container transition-container">
           <h2>{transitionTitle}</h2>
           <div className="transition-content">
             <p>{transitionMessage}</p>
           </div>
           <button onClick={handleTransitionNext}>Continue</button>
-        </div>
-      );
-    }
+      </div>
+    );
+  }
 
     switch (currentStep) {
       case 0:
-        return (
-          <div className="step-container">
-            <h2>Instructions</h2>
-            <p className="instructions">{instructions}</p>
-            <button onClick={() => setCurrentStep(1)}>Start</button>
-          </div>
-        );
+        return renderInstructions();
       case 1:
         return (
           <div className="step-container">
             <h2>General Information</h2>
             <p>{generalInfo[currentQuestionIndex]?.question}</p>
-            <input
-              type="text"
-              value={generalInfoAnswers[currentQuestionIndex] || ''}
-              onChange={(e) => handleGeneralInfoAnswer(e.target.value)}
-              placeholder="Enter your answer"
-            />
+            {currentQuestionIndex >= 2 ? (
+              <div className="rating-section">
+                <div className="rating-buttons">
+                  {[1, 2, 3, 4, 5].map((value) => (
+                    <button
+                      key={value}
+                      onClick={() => handleGeneralInfoAnswer(value.toString())}
+                      className={generalInfoAnswers[currentQuestionIndex] === value.toString() ? 'selected' : ''}
+                    >
+                      {value}
+                    </button>
+                  ))}
+                </div>
+                <div className="rating-labels">
+                  <span>Never</span>
+                  <span>Very Often</span>
+                </div>
+              </div>
+            ) : (
+              <input
+                type="text"
+                value={generalInfoAnswers[currentQuestionIndex] || ''}
+                onChange={(e) => handleGeneralInfoAnswer(e.target.value)}
+                placeholder="Enter your answer"
+              />
+            )}
             <button 
               onClick={handleNextGeneralInfo}
               disabled={!generalInfoAnswers[currentQuestionIndex]}
@@ -557,7 +586,7 @@ Evaluate the medical student's explanation by assigning a score from 0 to 5 (0 b
           </div>
         );
       case 3:
-        return (
+  return (
           <div className="step-container">
             <h2>Step 2: Answer Generation and Comparison</h2>
             <div className="question-container">
@@ -596,8 +625,8 @@ Evaluate the medical student's explanation by assigning a score from 0 to 5 (0 b
                     Next
                   </button>
                 </>
-              ) : (
-                <>
+      ) : (
+        <>
                   {showModelAnswer && (
                     <div className="answer-section">
                       <h4>Model's Answer:</h4>
@@ -607,29 +636,29 @@ Evaluate the medical student's explanation by assigning a score from 0 to 5 (0 b
                   <div className="answer-section">
                     <h4>Would you like to change your answer?</h4>
                     <div className="yes-no-buttons">
-                      <button
+                <button
                         onClick={() => handleAnswerChange(true)}
                         className={step2Answers[currentQuestionIndex]?.changedAnswer !== undefined ? 'selected' : ''}
-                      >
-                        Yes
-                      </button>
-                      <button
+                >
+                  Yes
+                </button>
+                <button
                         onClick={() => handleAnswerChange(false)}
                         className={step2Answers[currentQuestionIndex]?.changedAnswer === undefined ? 'selected' : ''}
-                      >
-                        No
-                      </button>
+                >
+                  No
+                </button>
                     </div>
                     {step2Answers[currentQuestionIndex]?.changedAnswer !== undefined && (
                       <>
                         <h4>Your Previous Answer:</h4>
                         <p>{step2Answers[currentQuestionIndex]?.answer}</p>
                         <h4>Your New Answer:</h4>
-                        <textarea
+                    <textarea
                           value={step2Answers[currentQuestionIndex]?.changedAnswer || ''}
                           onChange={(e) => handleChangedAnswer(e.target.value)}
                           placeholder="Enter your new answer"
-                          rows={4}
+                      rows={4}
                         />
                         <div className="rating-section">
                           <h4>Rate your confidence in your new answer (0-5):</h4>
@@ -656,10 +685,10 @@ Evaluate the medical student's explanation by assigning a score from 0 to 5 (0 b
                     </button>
                   </div>
                 </>
-              )}
+                )}
             </div>
-          </div>
-        );
+              </div>
+            );
       case 4:
         return (
           <div className="step-container">
@@ -726,8 +755,8 @@ Evaluate the medical student's explanation by assigning a score from 0 to 5 (0 b
                         conclusionAnswers[conclusionCurrentIndex.toString()] === false && 
                         !conclusionAnswers[`${conclusionCurrentIndex}_follow_up`])))}
                   >
-                    Next
-                  </button>
+            Next
+          </button>
                 </div>
               )}
             </div>

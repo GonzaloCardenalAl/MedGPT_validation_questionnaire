@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 import os
 import json
 from datetime import datetime
@@ -36,10 +37,42 @@ os.makedirs('answers', exist_ok=True)
 
 @app.get("/")
 def read_root():
-    return {
-        "message": "Welcome to the MedGPT Validation Questionnaire API",
-        "instructions": "Dear clinician,\n\n Welcome to the validation questionnaire for MedGPT and Clinical LLMs. As a brief introduction, MedGPT is a score that aims to evaluate the AI-generated responses in various aspects of clinical reasoning including reading comprehension, reasoning steps, knowledge recall, demographic bias and potential to cause harm. The medical questions presented focuses on HIV management.\n\n With your responses in this questionnaire you will help us validate our scoring scheme and the potential of LLMs for Curbside consults. In order to save your responses, you should arrive to the last screen and download the json file. During the attempt, we also record time so please do this as a single activity.\n\n In the following validation questionnaire you will find 4 steps:\n- General Information (3min): some general questions.\n- Step 1 MedGPT validation (10min): rating of the answers as physician evaluating other physicians responses.\n- Step 2 HIV Clinical Question-answering(25min): answering HIV clinical questions with the help of the AI responses.\n- Conclusion (5min): closing questions.\n\nThe total time should not exceed 45mins."
-         }
+    return HTMLResponse(content="""
+    <html>
+      <body>
+        <h2>Welcome to the MedGPT Validation Questionnaire API</h2>
+
+        <p>Dear Clinician,</p>
+
+        <p>Welcome, and thank you for taking part in our "HIV & LLM" questionnaire.</p>
+
+        <p>This study explores how large language models can support HIV clinical management. We are assessing their current capabilities, identifying strengths and limitations, and aiming to develop recommendations for improvement.</p>
+
+        <p>Your responses will help us validate two key aspects of our research: (1) The relevance of the metrics we use to evaluate AI-generated answers. (2) The benefits and drawbacks of using AI-generated clinical responses in clinical consultations.</p>
+
+        <p>The questionnaire consists of 4 sections:</p>
+        <div style="padding-left: 20px;">
+          <ol>
+            <li>General information – approx. 3 minutes</li>
+            <li>Evaluation of AI-generated answers – approx. 10 minutes</li>
+            <li>HIV clinical Q&amp;A – approx. 25 minutes</li>
+            <li>Closing questions – approx. 5 minutes</li>
+          </ol>
+        </div>
+
+        <p><strong>Instructions:</strong></p>
+        <ul>
+          <li>Please complete the questionnaire in one sitting, without interruption.</li>
+          <li>You may use tools you normally rely on during clinical consults (e.g., UpToDate, guidelines, references, etc.). It's important to answer the questions as you would in real-life clinical practice, as your natural approach is what we are aiming to evaluate.</li>
+          <li>
+            <span style="color: red;">To save your responses, make sure to reach the final screen and download your response file.</span>
+          </li>
+        </ul>
+
+        <p>We truly appreciate your time and contribution to this research.</p>
+      </body>
+    </html>
+    """)
 
 @app.get("/general-info")
 def get_general_info():
