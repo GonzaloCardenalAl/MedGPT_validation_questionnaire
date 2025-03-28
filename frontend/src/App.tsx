@@ -248,42 +248,25 @@ function App() {
   };
 
   const calculateProgress = () => {
-    // Calculate total number of questions
-    const totalQuestions = 
-      generalInfo.length + // General info questions
-      step1Questions.length + // Step 1 questions
-      step2Questions.length + // Step 2 questions
-      conclusion.length; // Conclusion questions
+    const totalQuestions = generalInfo.length + step1Questions.length + step2Questions.length + conclusion.length;
+    let answeredQuestions = 0;
 
-    // Calculate current question index based on current step
-    let currentQuestionCount = 0;
-    switch (currentStep) {
-      case 0: // Instructions
-        currentQuestionCount = 0;
-        break;
-      case 1: // General Info
-        currentQuestionCount = currentQuestionIndex;
-        break;
-      case 2: // Step 1
-        currentQuestionCount = generalInfo.length + currentQuestionIndex;
-        break;
-      case 3: // Step 2
-        currentQuestionCount = generalInfo.length + step1Questions.length + currentQuestionIndex;
-        break;
-      case 4: // Conclusion
-        currentQuestionCount = generalInfo.length + step1Questions.length + step2Questions.length + conclusionCurrentIndex;
-        break;
-      case 5: // Thank you
-        currentQuestionCount = totalQuestions;
-        break;
-      default:
-        currentQuestionCount = 0;
-    }
+    // Count answered questions in general info
+    answeredQuestions += Object.keys(generalInfoAnswers).length;
 
-    // Calculate progress percentage
-    const progress = (currentQuestionCount / totalQuestions) * 100;
-    return progress;
+    // Count answered questions in step 1
+    answeredQuestions += ratings.length;
+
+    // Count answered questions in step 2
+    answeredQuestions += step2Answers.filter(answer => answer.changedConfidence !== undefined).length;
+
+    // Count answered questions in conclusion
+    answeredQuestions += Object.keys(conclusionAnswers).length;
+
+    return (answeredQuestions / totalQuestions) * 100;
   };
+
+  const progress = calculateProgress();
 
   const handleStep2Answer = (answer: string) => {
     const newAnswers = [...step2Answers];
@@ -561,7 +544,7 @@ function App() {
           <div className="step-container">
             <h2>Section 2: Evaluation of AI-generated answers</h2>
             <div className="question-container">
-              <h3>Question {currentQuestionIndex + 1}</h3>
+              <h3>Question {currentQuestionIndex + 1} / {step1Questions.length}</h3>
               <p>{step1Questions[currentQuestionIndex]?.question}</p>
               <div className="answer-section">
                 <h4>Expected Answer:</h4>
@@ -616,7 +599,7 @@ function App() {
           <div className="step-container">
             <h2>Section 3: HIV clinical Q&A</h2>
             <div className="question-container">
-              <h3>Question {currentQuestionIndex + 1}</h3>
+              <h3>Question {currentQuestionIndex + 1} / {step2Questions.length}</h3>
               <p>{step2Questions[currentQuestionIndex]?.question}</p>
               
               {step2Phase === 'initial' ? (
@@ -811,7 +794,7 @@ function App() {
   return (
     <div className="app-container">
       <div className="progress-bar">
-        <div className="progress" style={{ width: `${calculateProgress()}%` }}></div>
+        <div className="progress-bar-fill" style={{ width: `${progress}%` }} />
       </div>
       {renderStep()}
     </div>
