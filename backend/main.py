@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse
 import os
 import json
 from datetime import datetime
@@ -120,3 +120,11 @@ async def save_answers(answers: dict):
 @app.get("/favicon.ico")
 def favicon():
     return {"message": "No favicon available"}
+
+@app.get("/evaluation-criteria")
+async def get_evaluation_criteria():
+    return FileResponse(
+        "./assets/Criterion.jpg",
+        media_type="image/jpeg",
+        filename="evaluation_criteria.jpg"
+    )
