@@ -232,7 +232,9 @@ function App() {
               For the upcoming questions, you will first be asked to enter your own suggested response to a clinical question. 
               After submitting your answer, you will then see the AI-generated response, and be given the option to revise your original answer.
             </p>
-            
+            <p style="margin-bottom: 20px;">
+              You may use tools you normally rely on during clinical consults (e.g., UpToDate, guidelines, references, etc.), but <strong>please don't use external large language models</strong>. It's important to answer the questions as you would in real-life clinical practice, as your natural approach is what we are aiming to evaluate.
+            </p>
             <p style="margin-bottom: 20px;">
               Please write your answers in complete sentences. For example, in response to the question 
               <span style="font-style: italic;">"What color is grass?"</span>, 
