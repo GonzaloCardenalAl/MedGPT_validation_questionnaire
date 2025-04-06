@@ -60,6 +60,7 @@ function App() {
   const [step1StartTime, setStep1StartTime] = useState<number>(0);
   const [step2StartTime, setStep2StartTime] = useState<number>(0);
   const [hasDownloaded, setHasDownloaded] = useState(false);
+  const [showCriteriaPopup, setShowCriteriaPopup] = useState(false);
 
   // Load initial data
   useEffect(() => {
@@ -148,7 +149,7 @@ function App() {
             <ul style="list-style-type: disc; padding-left: 20px; margin: 0;">
               <li style="margin-bottom: 10px;">You will not be able to go back to previous questions once you have moved forward.</li>
               <li style="margin-bottom: 10px;">
-                We strongly recommend you download the evaluation criteria now so you can refer to them while assessing the responses. 
+                The criteria table will be accessible in every question by clicking the green bottom "Evaluation Criteria Table". You can also download the evaluation criteria now so that you can open it in a new window. 
                 <a href="${BASE_URL}/evaluation-criteria" 
                    download="evaluation_criteria.jpg" 
                    style="color: #4CAF50; text-decoration: underline; font-weight: 500;">
@@ -196,6 +197,17 @@ function App() {
   const submitRating = async () => {
     try {
       const timeSpent = (Date.now() - step1StartTime) / 1000; // Convert to seconds
+      
+      // Check if all 5 aspects are rated
+      const currentRating = ratings[currentQuestionIndex];
+      if (!currentRating || 
+          currentRating.readingComprehension === undefined ||
+          currentRating.reasoningSteps === undefined ||
+          currentRating.knowledgeRecall === undefined ||
+          currentRating.demographicBias === undefined ||
+          currentRating.potentialHarm === undefined) {
+        return; // Don't proceed if any rating is missing
+      }
       
       // Update the ratings state with the time spent
       const updatedRatings = [...ratings];
@@ -509,20 +521,37 @@ function App() {
             <p>{generalInfo[currentQuestionIndex]?.question}</p>
             {currentQuestionIndex >= 2 ? (
               <div className="rating-section">
-                <div className="rating-buttons">
-                  {[1, 2, 3, 4, 5].map((value) => (
-                    <button
-                      key={value}
-                      onClick={() => handleGeneralInfoAnswer(value.toString())}
-                      className={generalInfoAnswers[currentQuestionIndex] === value.toString() ? 'selected' : ''}
-                    >
-                      {value}
-                    </button>
-                  ))}
-                </div>
-                <div className="rating-labels">
-                  <span>Never</span>
-                  <span>Very Often</span>
+                <div className="rating-buttons-vertical">
+                  {[1, 2, 3, 4, 5].map((value) => {
+                    let label = "";
+                    switch(value) {
+                      case 1:
+                        label = "I have never used it before";
+                        break;
+                      case 2:
+                        label = "I use it rarely (less than once per month)";
+                        break;
+                      case 3:
+                        label = "I use it occasionally (more than once per month)";
+                        break;
+                      case 4:
+                        label = "I use it frequently (weekly)";
+                        break;
+                      case 5:
+                        label = "I use it very frequently (daily)";
+                        break;
+                    }
+                    return (
+                      <button
+                        key={value}
+                        onClick={() => handleGeneralInfoAnswer(value.toString())}
+                        className={`vertical-rating-button ${generalInfoAnswers[currentQuestionIndex] === value.toString() ? 'selected' : ''}`}
+                      >
+                        <span className="rating-number">{value}</span>
+                        <span className="rating-text">{label}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             ) : (
@@ -546,14 +575,30 @@ function App() {
           <div className="step-container">
             <h2>Section 2: Evaluation of AI-generated answers</h2>
             <div className="question-container">
-              <h3>Question {currentQuestionIndex + 1} / {step1Questions.length}</h3>
+              <div className="question-header">
+                <h3>Question {currentQuestionIndex + 1} / {step1Questions.length}</h3>
+                <button 
+                  onClick={toggleCriteriaPopup}
+                  className="criteria-button"
+                >
+                  Evaluation Criteria Table
+                </button>
+              </div>
               <p>{step1Questions[currentQuestionIndex]?.question}</p>
               <div className="answer-section">
-                <h4>Expected Answer:</h4>
-                <p>{step1Questions[currentQuestionIndex]?.true_answer}</p>
                 <h4>AI-generated answer:</h4>
                 <p>{step1Questions[currentQuestionIndex]?.answer}</p>
+                <h4>Expected Answer:</h4>
+                <p>{step1Questions[currentQuestionIndex]?.true_answer}</p>
               </div>
+              {showCriteriaPopup && (
+                <div className="criteria-popup">
+                  <div className="criteria-popup-content">
+                    <span className="close-popup" onClick={toggleCriteriaPopup}>&times;</span>
+                    <img src={criterionImage} alt="Evaluation Criteria Table" />
+                  </div>
+                </div>
+              )}
               <div className="rating-section">
                 <h4>Rate the following aspects of the AI-generated answer (0-5):</h4>
                 {['ReadingComprehension', 'ReasoningSteps', 'KnowledgeRecall', 'DemographicBias', 'PotentialHarm'].map((aspect) => (
@@ -597,7 +642,7 @@ function App() {
           </div>
         );
       case 3:
-        return (
+  return (
           <div className="step-container">
             <h2>Section 3: HIV clinical Q&A</h2>
             <div className="question-container">
@@ -607,7 +652,7 @@ function App() {
               {step2Phase === 'initial' ? (
                 <>
                   <div className="answer-section">
-                    <h4>Your Answer:</h4>
+                    <h4>Please provide your answer, specifying the elements that support your conclusion:</h4>
                     <textarea
                       value={step2Answers[currentQuestionIndex]?.answer || ''}
                       onChange={(e) => handleStep2Answer(e.target.value)}
@@ -636,8 +681,8 @@ function App() {
                     Next
                   </button>
                 </>
-              ) : (
-                <>
+      ) : (
+        <>
                   {showModelAnswer && (
                     <div className="answer-section">
                       <h4>Model's Answer:</h4>
@@ -647,29 +692,29 @@ function App() {
                   <div className="answer-section">
                     <h4>Would you like to change your answer?</h4>
                     <div className="yes-no-buttons">
-                      <button
+                <button
                         onClick={() => handleAnswerChange(true)}
                         className={step2Answers[currentQuestionIndex]?.changedAnswer !== undefined ? 'selected' : ''}
-                      >
-                        Yes
-                      </button>
-                      <button
+                >
+                  Yes
+                </button>
+                <button
                         onClick={() => handleAnswerChange(false)}
                         className={step2Answers[currentQuestionIndex]?.changedAnswer === undefined ? 'selected' : ''}
-                      >
-                        No
-                      </button>
+                >
+                  No
+                </button>
                     </div>
                     {step2Answers[currentQuestionIndex]?.changedAnswer !== undefined ? (
                       <>
                         <h4>Your Previous Answer:</h4>
                         <p>{step2Answers[currentQuestionIndex]?.answer}</p>
                         <h4>Your New Answer:</h4>
-                        <textarea
+                    <textarea
                           value={step2Answers[currentQuestionIndex]?.changedAnswer || ''}
                           onChange={(e) => handleChangedAnswer(e.target.value)}
                           placeholder="Enter your new answer"
-                          rows={4}
+                      rows={4}
                         />
                         <div className="rating-section">
                           <h4>Rate your confidence in your new answer (0-5):</h4>
@@ -704,16 +749,20 @@ function App() {
                     )}
                     <button 
                       onClick={handleStep2Next}
-                      disabled={step2Answers[currentQuestionIndex]?.changedConfidence === undefined}
+                      disabled={
+                        step2Answers[currentQuestionIndex]?.changedAnswer !== undefined && 
+                        (!step2Answers[currentQuestionIndex]?.changedAnswer || 
+                         step2Answers[currentQuestionIndex]?.changedConfidence === undefined)
+                      }
                     >
                       Next
                     </button>
                   </div>
                 </>
-              )}
+                )}
             </div>
-          </div>
-        );
+              </div>
+            );
       case 4:
         return (
           <div className="step-container">
@@ -768,8 +817,8 @@ function App() {
                 disabled={conclusionCurrentIndex !== conclusion.length - 1 && 
                   !conclusionAnswers[conclusionCurrentIndex.toString()]}
               >
-                Next
-              </button>
+            Next
+          </button>
             </div>
           </div>
         );
@@ -791,6 +840,10 @@ function App() {
       default:
         return null;
     }
+  };
+
+  const toggleCriteriaPopup = () => {
+    setShowCriteriaPopup(!showCriteriaPopup);
   };
 
   return (
